@@ -1,12 +1,15 @@
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from restaurant.models import Restaurant, Menu
-from .serializers import RestaurantSerializer, MenuSerializer
+from .serializers import (
+    RestaurantSerializer,
+    MenuSerializer
+)
 from rest_framework import permissions
 
 
 @api_view(['GET'])
-@permission_classes([permissions.IsAdminUser])
+@permission_classes([permissions.IsAuthenticated])
 def get_restaurants(request):
     restaurants = Restaurant.objects.all()
     serializer = RestaurantSerializer(
@@ -17,22 +20,23 @@ def get_restaurants(request):
 
 
 @api_view(['POST'])
+@permission_classes([permissions.IsAdminUser])
 def add_restaurant(request):
     serializer = RestaurantSerializer(
-        data = request.data
+        data=request.data
     )
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
-    else : 
+    else:
         return Response(serializer.errors, 400)
 
+# Get one restaurant
+# Update restaurant
 
-
-## Get one restaurant
-## Update restaurant
 
 @api_view(['GET'])
+@permission_classes([permissions.IsAuthenticated])
 def get_menus(request):
     menus = Menu.objects.all()
     serializer = MenuSerializer(
@@ -44,13 +48,14 @@ def get_menus(request):
 
 
 @api_view(['POST'])
+@permission_classes([permissions.IsAdminUser])
 def add_menu(request):
     serializer = MenuSerializer(
-        data = request.data
+        data=request.data
     )
 
     if serializer.is_valid():
         serializer.save()
         return Response(serializer.data)
-    else : 
+    else:
         return Response(serializer.errors, 400)

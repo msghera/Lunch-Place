@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 from pathlib import Path
+from datetime import timedelta
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-^n%8s-=@ne$u8qm0+l=$e#oyywu4=^pmm3sz8wzpile1b501o-'
+SECRET_KEY = 'django-insecure-^n%8s-=@ne$u8qm0+l=$e#oyywu4=^pmm3s.021z8wzpile1b501o-'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -40,21 +41,25 @@ INSTALLED_APPS = [
 
     'rest_framework',
     'restaurant',
-    # 'auth',
+    'poll',
+    # 'rest_framework_swagger',
 ]
 
 
 SIMPLE_JWT = {
-    'SIGNING_KEY': 'thisisthesigningkeysimplejwt'
+    'SIGNING_KEY': SECRET_KEY,
+    'ACCESS_TOKEN_LIFETIME': timedelta(hours=2),
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
 REST_FRAMEWORK = {
    'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
-   ),    
-#    'DEFAULT_PERMISSION_CLASSES': (
-#         'rest_framework.permissions.IsAdminUser',
-#     )
+        'rest_framework.authentication.TokenAuthentication',
+   ),
+   'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAdminUser',
+    )
 }
 
 MIDDLEWARE = [

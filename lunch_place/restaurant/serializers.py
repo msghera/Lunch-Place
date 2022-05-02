@@ -1,9 +1,8 @@
-from dataclasses import field
-from genericpath import exists
 from rest_framework .serializers import ModelSerializer, ValidationError
 from restaurant.models import Restaurant, Menu
 
 import datetime
+
 
 class RestaurantSerializer(ModelSerializer):
     class Meta:
@@ -16,12 +15,12 @@ class MenuSerializer(ModelSerializer):
         model = Menu
         fields = '__all__'
 
-    def create(self, data):
+    def validate(self, attr):
         is_exist = Menu.objects.filter(
-            restaurant_id = data['restaurant_id'],
-            menu_date = datetime.date.today()
+            restaurant_id=attr['restaurant_id'],
+            menu_date=datetime.date.today()
         ).exists()
         if is_exist:
             raise ValidationError('Menu already exists for today.')
 
-        return Menu(**data)
+        return attr
