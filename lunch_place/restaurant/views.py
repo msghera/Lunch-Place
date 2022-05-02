@@ -31,9 +31,6 @@ def add_restaurant(request):
     else:
         return Response(serializer.errors, 400)
 
-# Get one restaurant
-# Update restaurant
-
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
