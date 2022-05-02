@@ -6,6 +6,3 @@ WORKDIR /lunch_place
 COPY requirements.txt /lunch_place/
 RUN pip install -r requirements.txt
 COPY . /lunch_place/
-RUN chmod +x ./run.sh
-
-ENTRYPOINT ["./run.sh"]
