@@ -12,7 +12,7 @@ services:
 
   lunch_place:
     build: .
-    command: "python3 lunch_place/manage.py runserver 0.0.0.0:8000"
+    command: "./run.sh"
     volumes:
       - .:/lunch_place
     ports:
