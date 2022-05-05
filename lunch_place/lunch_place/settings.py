@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'restaurant',
     'poll',
-    # 'rest_framework_swagger',
+    'drf_yasg',
 ]
 
 
