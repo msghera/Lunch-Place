@@ -90,6 +90,16 @@ TEMPLATES = [
     },
 ]
 
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'Bearer': {
+            'type': 'apiKey',
+            'name': 'Access Token',
+            'in': 'header'
+        }
+    }
+}
+
 WSGI_APPLICATION = 'lunch_place.wsgi.application'
 
 
