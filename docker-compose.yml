@@ -1,21 +1,40 @@
 version: "3.7"
    
 services:
-  db:
+  lunch_place:
+    build: .
+    container_name: lunch-place-code
+    command: "python3 lunch_place/manage.py runserver 0.0.0.0:8000"
+    restart: always
+    volumes:
+      - .:/lunch_place
+    ports:
+      - "8000:8000"
+    links:
+      - lunch-place-db
+    depends_on:
+      - lunch-place-db
+    networks:
+      - lunch-place
+
+  lunch-place-db:
     image: postgres
+    container_name: lunch-place-db
+    restart: always
+    expose:
+      - 5432
+    ports:
+      - "5432:5432"
     volumes:
       - ./data/db:/var/lib/postgresql/data
     environment:
       - POSTGRES_DB=lunch_place
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+    networks:
+      - lunch-place
 
-  lunch_place:
-    build: .
-    command: "python3 lunch_place/manage.py runserver 0.0.0.0:8000"
-    volumes:
-      - .:/lunch_place
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
+
+networks:
+  lunch-place:
+    driver: bridge
