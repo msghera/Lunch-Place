@@ -2,6 +2,10 @@
 ## _A simple Rest application to vote for a lunch place_
 
 ## Features
+
+Simply if went to `http://localhost:8000/` we will find a swagger documentations with all the available end points. 
+N.B. a superuser should be created so that you may login and create other accounts (employees). Also, if you use swagger documentation then you might use the access_token as `Bearer ${access_token}` this format. 
+
 | Endpoint      | Description |
 | ----------- | ----------- |
 | _http://localhost:8000/auth/register/_| Employee Registration |
@@ -13,25 +17,20 @@
 | _http://localhost:8000/poll/_| Can see all the choices for today |
 | _http://localhost:8000/poll/start/_ | Admin can start the poll for today    |
 | _http://localhost:8000/poll/vote/_ | Admin/Employee can vote for their favorite menu    |
-| _http://localhost:8000/poll/end/_ | Admin can end the poll for today and winner restaurant will be found. No restaurant can be winner for 3 consecutive polls    |
+| _http://localhost:8000/poll/end/_ | Admin can end the poll for today and winner restaurant will be found. No restaurant can
+| _http://localhost:8000/poll/result/_ | Registered employees can see the result of the poll. |
 
-
-- Import a HTML file and watch it magically convert to Markdown
-- Drag and drop images (requires your Dropbox account be linked)
-- Import and save files from GitHub, Dropbox, Google Drive and One Drive
-- Drag and drop markdown and HTML files into Dillinger
-- Export documents as Markdown, HTML and PDF
+- Suffecient logging is done. 
+- JWT will expire after a certain time (considered as log out).
 
 ## Installation
 
 ## The Docker Way
-0. Check if the postgres connectivity is non-commented and set according to your system.
 1. Clone the repo `git clone git@github.com:msghera/Lunch-Place.git`
 2. Move into the folder `cd Lunch-Place`
-3. `sudo docker-compose build`
+3. `sudo docker-compose up --build`
 
 ## The Manual Way
-0. sqlite3 is default database here.
 1. Clone the repo `git clone git@github.com:msghera/Lunch-Place.git`
 2. Move into the folder `cd Lunch-Place`
 3. You may create a virtual environment and use it 
