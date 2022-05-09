@@ -1,6 +1,7 @@
 from django.test import TestCase
-from restaurant.models import Restaurant
+from restaurant.models import Restaurant, Menu
 from app_logging import logger
+from datetime import date
 
 
 class RestaurantTestCase(TestCase):
@@ -23,9 +24,26 @@ class RestaurantTestCase(TestCase):
         )
         self.assertGreater(len(res), 0)
 
-#     def test_animals_can_speak(self):
-#         """Animals that can speak are correctly identified"""
-#         lion = Animal.objects.get(name="lion")
-#         cat = Animal.objects.get(name="cat")
-#         self.assertEqual(lion.speak(), 'The lion says "roar"')
-#         self.assertEqual(cat.speak(), 'The cat says "meow"')
+
+class MenuTestCase(TestCase):
+
+    description = "Test Description"
+    menu_date = date.today()
+
+    def test_menu_create(self):
+        logger.info(
+            "Menu Create Test Running"
+        )
+        restaurant = Restaurant.objects.create(
+            name='Test',
+            address='Test',
+            rating=3.5
+        )
+        restaurant.save()
+        Menu.objects.create(
+            restaurant_id=restaurant,
+            description=self.description,
+            menu_date=self.menu_date
+        )
+        res = Menu.objects.all()
+        self.assertGreater(len(res), 0)
