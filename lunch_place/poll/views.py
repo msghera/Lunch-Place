@@ -65,7 +65,7 @@ def start_poll(request):
 
 
 @api_view(['GET'])
-@permission_classes([permissions.IsAdminUser])
+@permission_classes([permissions.IsAuthenticated])
 def get_result(request):
 
     poll = Poll.objects.filter(
