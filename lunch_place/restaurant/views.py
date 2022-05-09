@@ -7,6 +7,15 @@ from .serializers import (
 )
 from rest_framework import permissions
 
+from app_logging import logger
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg.openapi import (
+    Schema,
+    TYPE_OBJECT,
+    TYPE_NUMBER,
+    TYPE_STRING,
+)
+
 
 @api_view(['GET'])
 @permission_classes([permissions.IsAuthenticated])
@@ -16,9 +25,18 @@ def get_restaurants(request):
         restaurants,
         many=True
     )
+    logger.info('Returning all the restaurants')
     return Response(serializer.data)
 
 
+@swagger_auto_schema(method='post', request_body=Schema(
+    type=TYPE_OBJECT,
+    properties={
+        'name': Schema(type=TYPE_STRING, description='Restaurant Name'),
+        'address': Schema(type=TYPE_STRING, description='Restaurant Address'),
+        'rating': Schema(type=TYPE_NUMBER, description='Restaurant Rating'),
+    }
+))
 @api_view(['POST'])
 @permission_classes([permissions.IsAdminUser])
 def add_restaurant(request):
@@ -26,9 +44,11 @@ def add_restaurant(request):
         data=request.data
     )
     if serializer.is_valid():
+        logger.info('Creating a new restaurants')
         serializer.save()
         return Response(serializer.data)
     else:
+        logger.error('Error in creating restaurant.')
         return Response(serializer.errors, 400)
 
 
@@ -41,9 +61,20 @@ def get_menus(request):
         many=True
     )
 
+    logger.info('Returning all the Menus (for anyday).')
     return Response(serializer.data)
 
 
+@swagger_auto_schema(method='post', request_body=Schema(
+    type=TYPE_OBJECT,
+    properties={
+        'restaurant_id': Schema(type=TYPE_NUMBER, description='Restaurant ID'),
+        'description': Schema(
+            type=TYPE_STRING,
+            description='Menu Description'
+        ),
+    }
+))
 @api_view(['POST'])
 @permission_classes([permissions.IsAdminUser])
 def add_menu(request):
@@ -53,6 +84,8 @@ def add_menu(request):
 
     if serializer.is_valid():
         serializer.save()
+        logger.info('Adding a new menu for today.')
         return Response(serializer.data)
     else:
+        logger.error('Error in creating new menu.')
         return Response(serializer.errors, 400)

@@ -3,6 +3,7 @@ from datetime import datetime, date
 from poll.models import Poll, Vote, POLL_TYPE
 from .serializers import (
     PollSerializer,
+    ResultSerializer,
     VoteSerializer
 )
 from restaurant.models import Menu
@@ -13,6 +14,13 @@ from restaurant.serializers import (
     RestaurantSerializer
 )
 from restaurant.models import Restaurant
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg.openapi import (
+    Schema,
+    TYPE_OBJECT,
+    TYPE_NUMBER,
+)
+from app_logging import logger
 
 
 @api_view(['GET'])
@@ -35,6 +43,7 @@ def get_vote_choices(request):
         ).data
         serializer.data[i] = each
 
+    logger.info('Returning all the menus today for vote.')
     return Response(serializer.data)
 
 
@@ -48,9 +57,41 @@ def start_poll(request):
 
     if serializer.is_valid():
         serializer.save()
+        logger.info('A new poll is being started.')
         return Response(serializer.data)
     else:
+        logger.error('Error in starting poll.')
         return Response(serializer.errors, 400)
+
+
+@api_view(['GET'])
+@permission_classes([permissions.IsAdminUser])
+def get_result(request):
+
+    poll = Poll.objects.filter(
+        poll_date=date.today()
+    ).first()
+
+    if not poll:
+        logger.warning('There is no poll for today\
+            either running or finished.')
+        return Response({
+            'error': 'No poll found for today.'
+        }, 400)
+
+    if poll.status == "running":
+        logger.warning('There is a poll for today\
+            but it is on running mode\
+                to get the result it has to be finished first.')
+        return Response({
+            'error': 'Poll is still running.'
+        }, 400)
+
+    serializer = ResultSerializer(
+        poll
+    )
+    logger.info('Returning result of the poll for today.')
+    return Response(serializer.data)
 
 
 @api_view(['GET'])
@@ -62,6 +103,8 @@ def end_poll(request):
     ).first()
 
     if not poll:
+        logger.warning('There is no poll for today\
+            in running to end.')
         return Response({
             'error': 'No poll found (Running) for today.'
         }, 400)
@@ -73,6 +116,13 @@ def end_poll(request):
 
     probable_winners = menus[:2] if len(menus) > 1 else menus
     winner = None
+
+    if len(probable_winners) == 0:
+        logger.warning('No vote given \
+            thus winner calculation is not possible.')
+        return Response({
+            'error': 'No vote given to find the winner.'
+        }, 400)
 
     last_winners = Poll.objects.filter(
         poll_date__lt=poll.poll_date,
@@ -86,6 +136,9 @@ def end_poll(request):
             probable_winners[0].restaurant_id:
         winner = probable_winners[0]
     elif len(probable_winners) > 1:
+        logger.warning(f'{probable_winners[0]} is not winning \
+            despite of getting most votes, as it will it\'s third\
+            win on strike.')
         winner = probable_winners[1]
 
     poll.end_datetime = datetime.now()
@@ -99,11 +152,22 @@ def end_poll(request):
         poll_serializer = PollSerializer(poll)
         poll_serializer.data['message'] = f'Menu : {winner.id} \
             is determined as the winner for today.'
+    logger.info(f'Menu : {winner.id} \
+            is determined as the winner for today.')
     poll.save()
 
     return Response(poll_serializer.data)
 
 
+@swagger_auto_schema(method='post', request_body=Schema(
+    type=TYPE_OBJECT,
+    properties={
+        'menu_id': Schema(
+            type=TYPE_NUMBER,
+            description='Menu ID (we are voting)'
+        ),
+    }
+))
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])
 def vote(request):
@@ -126,6 +190,7 @@ def vote(request):
     ).exists()
 
     if is_exist:
+        logger.warning('Already a vote is registered from this account.')
         return Response({
             'error': 'You have already submitted your vote for today.'
         }, 400)
@@ -152,6 +217,7 @@ def vote(request):
         menu.votes = menu.votes + 1
         menu.save()
 
+        logger.info('Registering a vote for today.')
         serializer.save()
 
         return Response(serializer.data)

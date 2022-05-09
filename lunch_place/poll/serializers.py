@@ -20,10 +20,13 @@ class PollSerializer(ModelSerializer):
         return attr
 
 
+class ResultSerializer(ModelSerializer):
+    class Meta:
+        model = Poll
+        fields = ('winner_menu_id',)
+
+
 class VoteSerializer(ModelSerializer):
     class Meta:
         model = Vote
         fields = '__all__'
-
-    # def validate(self, attrs):
-    #     return attrs
